@@ -1,0 +1,11 @@
+{
+  "name": "poc-book-rental",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "test": "npm test -w server"
+  }
+}

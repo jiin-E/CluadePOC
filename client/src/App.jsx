@@ -1,121 +1,108 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 
+// 오류 응답이면 본문의 error 메시지로 Error 를 던진다
+async function request(path, options) {
+  const res = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...options,
+  })
+  const body = await res.json().catch(() => null)
+  if (!res.ok) {
+    throw new Error(body?.error ?? `요청에 실패했습니다. (${res.status})`)
+  }
+  return body
+}
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [books, setBooks] = useState([])
+  const [name, setName] = useState('')
+  const [error, setError] = useState('')
+
+  async function loadBooks() {
+    try {
+      setBooks(await request('/api/books'))
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  useEffect(() => {
+    request('/api/books')
+      .then(setBooks)
+      .catch((e) => setError(e.message))
+  }, [])
+
+  async function handle(action) {
+    setError('')
+    try {
+      await action()
+    } catch (e) {
+      setError(e.message)
+    }
+    await loadBooks()
+  }
+
+  const borrow = (id) =>
+    handle(() =>
+      request(`/api/books/${id}/borrow`, {
+        method: 'POST',
+        body: JSON.stringify({ name }),
+      }),
+    )
+
+  const giveBack = (id) =>
+    handle(() => request(`/api/books/${id}/return`, { method: 'POST' }))
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <main>
+      <h1>사내 도서 대여</h1>
 
-      <div className="ticks"></div>
+      <label className="name">
+        이름
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="대여자 이름"
+        />
+      </label>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <div className="error" role="alert">
+        {error}
+      </div>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      <table>
+        <thead>
+          <tr>
+            <th>제목</th>
+            <th>저자</th>
+            <th>상태</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {books.map((book) => (
+            <tr key={book.id}>
+              <td>{book.title}</td>
+              <td>{book.author}</td>
+              <td>
+                {book.borrower === null
+                  ? '대여 가능'
+                  : `대여 중 (${book.borrower}, ~${book.due_date})`}
+              </td>
+              <td>
+                <button type="button" onClick={() => borrow(book.id)}>
+                  대여
+                </button>
+                <button type="button" onClick={() => giveBack(book.id)}>
+                  반납
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </main>
   )
 }
 

@@ -1,32 +1,139 @@
 main {
-  max-width: 800px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 40px 24px;
 }
 
-.name input {
-  margin-left: 8px;
-  padding: 4px 8px;
+h1 {
+  margin: 0 0 24px;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(90deg, #7c3aed, #ec4899);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .error {
-  min-height: 1.5em;
-  margin: 12px 0;
-  color: #c0392b;
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: #ff4d6d;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 8px 24px rgba(255, 77, 109, 0.35);
+}
+
+.name {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.name input {
+  margin-left: 12px;
+  padding: 8px 16px;
+  border: 2px solid #ddd6fe;
+  border-radius: 999px;
+  outline: none;
+  font: inherit;
+  background: #fff;
+  transition: border-color 0.15s;
+}
+
+.name input:focus {
+  border-color: #8b5cf6;
 }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(124, 58, 237, 0.12);
+}
+
+thead tr {
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+}
+
+thead th {
+  color: #fff;
+  font-weight: 700;
 }
 
 th,
 td {
-  padding: 8px;
-  border-bottom: 1px solid #ddd;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f1eefe;
   text-align: left;
 }
 
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:not(.borrowed):hover td {
+  background: #faf7ff;
+}
+
+td:last-child {
+  white-space: nowrap;
+}
+
 td button {
-  margin-right: 4px;
+  margin-right: 6px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+
+td button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-borrow {
+  background: #8b5cf6;
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+}
+
+.btn-return {
+  background: #d1fae5;
+  color: #047857;
+}
+
+td button:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+tr.borrowed td {
+  background: #f4f4f6;
+  color: #9a98ad;
+}
+
+tr.borrowed strong {
+  color: #6b6885;
+}
+
+.empty {
+  padding: 32px;
+  color: #9a98ad;
+  text-align: center;
 }

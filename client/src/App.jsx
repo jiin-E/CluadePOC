@@ -33,6 +33,15 @@ function App() {
       .catch((e) => setError(e.message))
   }, [])
 
+  // 오류 안내는 3초 뒤 사라진다
+  useEffect(() => {
+    if (!error) return
+    const timer = setTimeout(() => setError(''), 3000)
+    return () => clearTimeout(timer)
+  }, [error])
+
+  const nameEmpty = name.trim() === ''
+
   async function handle(action) {
     setError('')
     try {
@@ -56,6 +65,12 @@ function App() {
 
   return (
     <main>
+      {error && (
+        <div className="error" role="alert">
+          {error}
+        </div>
+      )}
+
       <h1>사내 도서 대여</h1>
 
       <label className="name">
@@ -67,10 +82,6 @@ function App() {
         />
       </label>
 
-      <div className="error" role="alert">
-        {error}
-      </div>
-
       <table>
         <thead>
           <tr>
@@ -81,20 +92,44 @@ function App() {
           </tr>
         </thead>
         <tbody>
+          {books.length === 0 && (
+            <tr>
+              <td colSpan={4} className="empty">
+                등록된 책이 없습니다
+              </td>
+            </tr>
+          )}
           {books.map((book) => (
-            <tr key={book.id}>
+            <tr
+              key={book.id}
+              className={book.borrower === null ? undefined : 'borrowed'}
+            >
               <td>{book.title}</td>
               <td>{book.author}</td>
               <td>
-                {book.borrower === null
-                  ? '대여 가능'
-                  : `대여 중 (${book.borrower}, ~${book.due_date})`}
+                {book.borrower === null ? (
+                  '대여 가능'
+                ) : (
+                  <>
+                    대여 중 · <strong>{book.borrower}</strong> (~{book.due_date})
+                  </>
+                )}
               </td>
               <td>
-                <button type="button" onClick={() => borrow(book.id)}>
+                <button
+                  type="button"
+                  className="btn-borrow"
+                  onClick={() => borrow(book.id)}
+                  disabled={nameEmpty}
+                  title={nameEmpty ? '이름을 먼저 입력하세요' : undefined}
+                >
                   대여
                 </button>
-                <button type="button" onClick={() => giveBack(book.id)}>
+                <button
+                  type="button"
+                  className="btn-return"
+                  onClick={() => giveBack(book.id)}
+                >
                   반납
                 </button>
               </td>

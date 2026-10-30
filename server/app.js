@@ -25,14 +25,19 @@ app.post('/api/books/:id/borrow', (req, res) => {
     return res.status(404).json({ error: '책을 찾을 수 없습니다.' })
   }
 
-  // 반납 예정일은 대여일 + 14일(YYYY-MM-DD)
+  // 반납 예정일은 서버 시간대 기준 대여일 + 14일(YYYY-MM-DD). UTC 로 자르면 KST 오전에 하루가 어긋난다
   const now = new Date()
-  const due = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000)
+  const due = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 14)
+  const dueDate = [
+    due.getFullYear(),
+    String(due.getMonth() + 1).padStart(2, '0'),
+    String(due.getDate()).padStart(2, '0'),
+  ].join('-')
 
   // borrower IS NULL 조건으로 갱신해 동시에 빌려도 한 명만 성공한다
   const result = db
     .prepare('UPDATE books SET borrower = ?, borrowed_at = ?, due_date = ? WHERE id = ? AND borrower IS NULL')
-    .run(name, now.toISOString(), due.toISOString().slice(0, 10), book.id)
+    .run(name, now.toISOString(), dueDate, book.id)
   if (result.changes === 0) {
     return res.status(409).json({ error: '이미 대여 중인 책입니다.' })
   }

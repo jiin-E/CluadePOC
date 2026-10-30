@@ -21,6 +21,7 @@ KOSTA 「Claude Code로 POC 프로젝트 만들기」 실습용 저장소다. �
 - 만들지 않는 것: 로그인 · 회원 · 검색 · 연체 · 배포
 - 보고: 작업이 끝나면 바꾼 파일과 내용을 3줄로 알려 준다
 - 언어: 답과 문서는 한국어로 쓴다
+- 설계 문서: `docs/SPEC.md` · `docs/design.md` · `docs/tasks.md`
 
 ## POC 범위 규칙 (`docs/idea-template.md` 기준)
 

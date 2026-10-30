@@ -1,4 +1,5 @@
 # POC 실습 저장소
+https://buly.kr/EI6k1Qc
 
 KOSTA 「Claude Code로 POC 프로젝트 만들기」 실습용 저장소입니다.
 

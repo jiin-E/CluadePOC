@@ -7,3 +7,6 @@ books.db
 .env
 dist/
 .DS_Store
+
+# Playwright MCP 스냅샷 · 로그
+.playwright-mcp/
